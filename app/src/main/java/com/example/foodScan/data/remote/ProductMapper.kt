@@ -24,7 +24,8 @@ fun ProductResponse.toDatabaseEntities(): Triple<ProductEntity, NutrimentEntity?
             protein = it.protein,
             salt = it.salt,
             fiber = it.fiber,
-            sodium = it.sodium
+            sodium = it.sodium,
+            fruitsVegetables = it.fruitsVegetables
         )
     }
 

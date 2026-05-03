@@ -30,5 +30,6 @@ data class ApiNutriments(
     @SerialName("proteins_100g") val protein: Double? = 0.0,
     @SerialName("salt_100g") val salt: Double? = 0.0,
     @SerialName("fiber_100g") val fiber: Double? = 0.0,
-    @SerialName("sodium_100g") val sodium: Double? = 0.0
+    @SerialName("sodium_100g") val sodium: Double? = 0.0,
+    @SerialName("fruits-vegetables-nuts-estimate-from-ingredients_100g") val fruitsVegetables: Double? = 0.0
 )

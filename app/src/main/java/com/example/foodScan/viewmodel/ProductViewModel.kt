@@ -123,4 +123,28 @@ class ProductViewModel(
         _currentProduct.value = null
         _error.value = null
     }
+
+    private val _selectedBarcodes = MutableStateFlow<Set<String>>(emptySet())
+    val selectedBarcodes: StateFlow<Set<String>> = _selectedBarcodes.asStateFlow()
+
+    val isSelectionMode: StateFlow<Boolean> = _selectedBarcodes
+        .map { it.isNotEmpty() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    fun toggleSelection(barcode: String) {
+        _selectedBarcodes.update { current ->
+            if (barcode in current) current - barcode else current + barcode
+        }
+    }
+
+    fun clearSelection() {
+        _selectedBarcodes.value = emptySet()
+    }
+
+    fun deleteSelected() {
+        viewModelScope.launch {
+            _selectedBarcodes.value.forEach { repository.deleteProduct(it) }
+            _selectedBarcodes.value = emptySet()
+        }
+    }
 }

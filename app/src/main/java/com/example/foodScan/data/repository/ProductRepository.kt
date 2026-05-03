@@ -31,6 +31,10 @@ class ProductRepositoryImpl(
         }
     }
 
+    override suspend fun deleteProduct(barcode: String) {
+        productDao.deleteProduct(barcode)
+    }
+
     override suspend fun toggleFavorite(barcode: String) {
         productDao.toggleFavorite(barcode)
     }
@@ -74,7 +78,8 @@ class ProductRepositoryImpl(
                     protein = it.protein ?: 0.0,
                     salt = it.salt ?: 0.0,
                     fiber = it.fiber ?: 0.0,
-                    sodium = it.sodium ?: 0.0
+                    sodium = it.sodium ?: 0.0,
+                    fruitsVegetables = it.fruitsVegetables ?: 0.0
                 )
             },
             allergens = this.allergens.map { it.label }

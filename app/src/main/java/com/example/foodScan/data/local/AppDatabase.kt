@@ -17,7 +17,7 @@ import com.example.foodScan.data.local.entities.ProductEntity
         AllergenEntity::class,
         ProductAllergenCrossRef::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

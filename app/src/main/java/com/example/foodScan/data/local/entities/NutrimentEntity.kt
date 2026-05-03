@@ -26,5 +26,6 @@ data class NutrimentEntity(
     val protein: Double?,
     val salt: Double?,
     val fiber: Double?,
-    val sodium: Double?
+    val sodium: Double?,
+    val fruitsVegetables: Double?
 )

@@ -30,12 +30,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.foodScan.data.domain.model.NutriScoreLetter
 import com.example.foodScan.data.domain.model.Product
-import kotlin.text.split
+import com.example.foodScan.data.domain.model.computeNutriScore
 
 @Composable
 fun ProductDetailSheet(
@@ -103,6 +105,43 @@ fun ProductDetailSheet(
                 product.category?.let {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
                     DetailRow(label = "Catégorie", value = it)
+                }
+            }
+        }
+
+        // Nutri-Score
+        product.nutriments?.let { n ->
+            val score = computeNutriScore(n, product.category)
+            item {
+                SectionTitle("Nutri-Score")
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Les 5 lettres avec la lettre active mise en avant
+                    enumValues<NutriScoreLetter>().forEach { letter ->
+                        val isActive = letter == score.letter
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(
+                                    if (isActive) nutriScoreColor(letter)
+                                    else nutriScoreColor(letter).copy(alpha = 0.25f)
+                                )
+                                .size(if (isActive) 44.dp else 34.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = letter.name,
+                                color = if (isActive) nutriScoreForeground(letter)
+                                else nutriScoreForeground(letter).copy(alpha = 0.5f),
+                                style = if (isActive) MaterialTheme.typography.titleLarge
+                                else MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -241,3 +280,22 @@ private fun NutrientRow(
 private fun Double.formatted(): String =
     if (this == this.toLong().toDouble()) this.toLong().toString()
     else "%.1f".format(this)
+
+
+@Composable
+fun NutriScoreBadge(letter: NutriScoreLetter, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(nutriScoreColor(letter))
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = letter.name,
+            color = nutriScoreForeground(letter),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.ExtraBold
+        )
+    }
+}
