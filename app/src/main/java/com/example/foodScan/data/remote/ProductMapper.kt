@@ -2,7 +2,7 @@ package com.example.foodScan.data.remote
 
 import com.example.foodScan.data.local.entities.*
 
-fun ProductResponse.toDatabaseEntities(): Triple<ProductEntity, NutrimentEntity?, List<AllergenEntity>> {
+fun ProductResponse.toDatabaseEntities(): Triple<ProductEntity, NutrientEntity?, List<AllergenEntity>> {
     val apiProduct = this.product ?: throw Exception("Produit non trouvé")
 
     val product = ProductEntity(
@@ -13,7 +13,7 @@ fun ProductResponse.toDatabaseEntities(): Triple<ProductEntity, NutrimentEntity?
     )
 
     val nutriments = apiProduct.nutriments?.let {
-        NutrimentEntity(
+        NutrientEntity(
             productId = apiProduct.id,
             energy = it.energy,
             energyKj = it.energyKj,

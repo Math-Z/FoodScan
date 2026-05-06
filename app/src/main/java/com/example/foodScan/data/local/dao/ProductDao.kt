@@ -11,7 +11,7 @@ interface ProductDao {
     suspend fun insertProduct(product: ProductEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertNutriments(nutriments: NutrimentEntity)
+    suspend fun insertNutriments(nutriments: NutrientEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllergen(allergen: AllergenEntity)
@@ -41,7 +41,7 @@ data class FullProduct(
         parentColumn = "id",
         entityColumn = "productId"
     )
-    val nutriments: NutrimentEntity?,
+    val nutriments: NutrientEntity?,
 
     @Relation(
         parentColumn = "id",

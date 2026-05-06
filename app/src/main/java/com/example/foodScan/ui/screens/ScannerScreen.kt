@@ -2,7 +2,6 @@ package com.example.foodScan.ui.screens
 
 import android.Manifest
 import android.util.Log
-import androidx.annotation.OptIn
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView

@@ -6,18 +6,18 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.foodScan.data.local.dao.ProductDao
 import com.example.foodScan.data.local.entities.AllergenEntity
-import com.example.foodScan.data.local.entities.NutrimentEntity
+import com.example.foodScan.data.local.entities.NutrientEntity
 import com.example.foodScan.data.local.entities.ProductAllergenCrossRef
 import com.example.foodScan.data.local.entities.ProductEntity
 
 @Database(
     entities = [
         ProductEntity::class,
-        NutrimentEntity::class,
+        NutrientEntity::class,
         AllergenEntity::class,
         ProductAllergenCrossRef::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

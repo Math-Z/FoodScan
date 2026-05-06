@@ -5,7 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "nutriments",
+    tableName = "nutrients",
     foreignKeys = [
         ForeignKey(
             entity = ProductEntity::class,
@@ -15,7 +15,7 @@ import androidx.room.PrimaryKey
         )
     ]
 )
-data class NutrimentEntity(
+data class NutrientEntity(
     @PrimaryKey val productId: String,
     val energy: Double?,
     val energyKj: Double?,
