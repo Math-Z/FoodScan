@@ -1,0 +1,150 @@
+package com.example.nutriScan.viewmodel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.nutriScan.data.domain.model.Product
+import com.example.nutriScan.data.domain.repository.ProductRepository
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+
+class ProductViewModel(
+    private val repository: ProductRepository
+) : ViewModel() {
+
+    private val _showFavoritesOnly = MutableStateFlow(false)
+    val showFavoritesOnly: StateFlow<Boolean> = _showFavoritesOnly.asStateFlow()
+
+    private val _excludedAllergens = MutableStateFlow<Set<String>>(emptySet())
+    val excludedAllergens: StateFlow<Set<String>> = _excludedAllergens.asStateFlow()
+
+    private val _selectedCategories = MutableStateFlow<Set<String>>(emptySet())
+    val selectedCategories: StateFlow<Set<String>> = _selectedCategories.asStateFlow()
+
+    private val _allProducts: StateFlow<List<Product>> = repository
+        .getAllProducts()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
+    val filteredProducts: StateFlow<List<Product>> = combine(
+        _allProducts,
+        _showFavoritesOnly,
+        _excludedAllergens,
+        _selectedCategories
+    ) { products, favoritesOnly, excluded, categories ->
+        products
+            .filter { if (favoritesOnly) it.isFavorite else true }
+            .filter { product ->
+                if (excluded.isEmpty()) true
+                else product.allergens.none { it in excluded }
+            }
+            .filter { product ->
+                if (categories.isEmpty()) true
+                else product.category != null && product.category in categories
+            }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList()
+    )
+
+    val availableAllergens: StateFlow<List<String>> = _allProducts
+        .map { products -> products.flatMap { it.allergens }.distinct().sorted() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
+    val availableCategories: StateFlow<List<String>> = _allProducts
+        .map { products -> products.mapNotNull { it.category }.distinct().sorted() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
+
+    private val _currentProduct = MutableStateFlow<Product?>(null)
+    val currentProduct: StateFlow<Product?> = _currentProduct.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
+    fun toggleFavoritesFilter() {
+        _showFavoritesOnly.value = !_showFavoritesOnly.value
+    }
+
+    fun toggleAllergenExclusion(allergen: String) {
+        _excludedAllergens.update { current ->
+            if (allergen in current) current - allergen else current + allergen
+        }
+    }
+
+    fun clearAllergenFilters() {
+        _excludedAllergens.value = emptySet()
+    }
+
+    fun toggleCategorySelection(category: String) {
+        _selectedCategories.update { current ->
+            if (category in current) current - category else current + category
+        }
+    }
+
+    fun clearCategoryFilters() {
+        _selectedCategories.value = emptySet()
+    }
+
+    fun toggleFavorite(barcode: String) {
+        viewModelScope.launch {
+            repository.toggleFavorite(barcode)
+        }
+    }
+
+    fun loadProduct(barcode: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            try {
+                _currentProduct.value = repository.getProduct(barcode)
+            } catch (e: Exception) {
+                _error.value = "Produit introuvable : ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun clearCurrentProduct() {
+        _currentProduct.value = null
+        _error.value = null
+    }
+
+    private val _selectedBarcodes = MutableStateFlow<Set<String>>(emptySet())
+    val selectedBarcodes: StateFlow<Set<String>> = _selectedBarcodes.asStateFlow()
+
+    val isSelectionMode: StateFlow<Boolean> = _selectedBarcodes
+        .map { it.isNotEmpty() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    fun toggleSelection(barcode: String) {
+        _selectedBarcodes.update { current ->
+            if (barcode in current) current - barcode else current + barcode
+        }
+    }
+
+    fun clearSelection() {
+        _selectedBarcodes.value = emptySet()
+    }
+
+    fun deleteSelected() {
+        viewModelScope.launch {
+            _selectedBarcodes.value.forEach { repository.deleteProduct(it) }
+            _selectedBarcodes.value = emptySet()
+        }
+    }
+}

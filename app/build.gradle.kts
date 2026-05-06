@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.foodScan"
+    namespace = "com.example.nutriScan"
     compileSdk = 37
 
     defaultConfig {
