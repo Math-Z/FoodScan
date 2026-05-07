@@ -1,0 +1,11 @@
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE android_metadata (locale TEXT);
+INSERT INTO android_metadata VALUES('en_US');
+CREATE TABLE `products` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `imageUrl` TEXT, `category` TEXT, `isFavorite` INTEGER NOT NULL, PRIMARY KEY(`id`));
+CREATE TABLE `nutrients` (`productId` TEXT NOT NULL, `energy` REAL, `energyKj` REAL, `fat` REAL, `saturatedFat` REAL, `carbohydrates` REAL, `sugar` REAL, `protein` REAL, `salt` REAL, `fiber` REAL, `sodium` REAL, `fruitsVegetables` REAL, PRIMARY KEY(`productId`), FOREIGN KEY(`productId`) REFERENCES `products`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE );
+CREATE TABLE `allergens` (`id` TEXT NOT NULL, `label` TEXT NOT NULL, PRIMARY KEY(`id`));
+CREATE TABLE `product_allergens` (`productId` TEXT NOT NULL, `allergenId` TEXT NOT NULL, PRIMARY KEY(`productId`, `allergenId`), FOREIGN KEY(`productId`) REFERENCES `products`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`allergenId`) REFERENCES `allergens`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE );
+CREATE TABLE room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT);
+INSERT INTO room_master_table VALUES(42,'ac1f367e26eb78e988b6599294a712d4');
+COMMIT;
